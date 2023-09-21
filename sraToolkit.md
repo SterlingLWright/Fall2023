@@ -22,7 +22,7 @@ tar -vxzf sratoolkit.tar.gz
 
 3. we will append the path to the binaries to your PATH environment variable:
 ```
-export PATH="/storage/home/neh5207/scratch/sratoolkit.3.0.7-ubuntu64/bin:$PATH"
+export PATH="/storage/home/neh5207/scratch/sratoolkit.3.0.7-ubuntu64/bin:$PATH" # Replace 'neh5207' with your PSU ID
 ```
 
 4. Before we configure the toolkit, we will verify the binaries will be found by the shell
