@@ -207,6 +207,9 @@ fastqc *.fastq -o ./
 
 Let's check the results .html file by either downloading or opening in the interactive desktop.
 
+# copy .html files to your local machine 
+rsync -P svw5689@submit.hpc.psu.edu:/storage/home/svw5689/Bioinformatic_Programs/*html .
+ 
 ****(optional)****
 MultiQC
 
