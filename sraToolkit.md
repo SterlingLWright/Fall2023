@@ -25,51 +25,67 @@ tar -vxzf sratoolkit.tar.gz
 export PATH="/storage/home/neh5207/scratch/sratoolkit.3.0.7-ubuntu64/bin:$PATH" # Replace 'neh5207' with your PSU ID
 ```
 
-4. Before we configure the toolkit, we will verify the binaries will be found by the shell
+4. Verify where the binaries are found by the shell
 ```
-which fastq-dump
+which fasterq-dump
 ```
 
-5.  Now we can proceed to the configuration step followed by this command:
+5. To download as accession file, you will first use the 'prefetch' tool. Prefetch will download all necessary files
 ```
-vdb-config i
+prefetch SRR000001
 ```
-These are the parameters we need to set up:
-- Enable the "Remote Access" option on the Main screen.
-- Go to cloud provider tab and accept to "report cloud instance identity".
 
-6. Test that the toolkit if functional:
+You should get the following output: 
 ```
-fastq-dump --stdout -X 2 SRR390728
+2023-09-22T00:06:33 prefetch.3.0.7: Current preference is set to retrieve SRA Normalized Format files with full base quality scores.
+2023-09-22T00:06:33 prefetch.3.0.7: 1) Downloading 'SRR000001'...
+2023-09-22T00:06:33 prefetch.3.0.7: SRA Normalized Format file is being retrieved, if this is different from your preference, it may be due to current file availability.
+2023-09-22T00:06:33 prefetch.3.0.7:  Downloading via HTTPS...
+2023-09-22T00:06:44 prefetch.3.0.7:  HTTPS download succeed
+2023-09-22T00:06:44 prefetch.3.0.7:  'SRR000001' is valid
+2023-09-22T00:06:44 prefetch.3.0.7: 1) 'SRR000001' was downloaded successfully
+```
+
+6. Next we will use the tool 'fasterq-dump' to extract the data from the SRA-accession file and convert it to fasta/fastq format.
+```
+fasterq-dump SRR000001
 ```
 
 the command should produce the following output
 ```
-Read 2 spots for SRR390728
-Written 2 spots for SRR390728
-@SRR390728.1 1 length=72
-CATTCTTCACGTAGTTCTCGAGCCTTGGTTTTCAGCGATGGAGAATGACTTTGACAAGCTGAGAGAAGNTNC
-+SRR390728.1 1 length=72
-;;;;;;;;;;;;;;;;;;;;;;;;;;;9;;665142;;;;;;;;;;;;;;;;;;;;;;;;;;;;;96&&&&(
-@SRR390728.2 2 length=72
-AAGTAGGTCTCGTCTGTGTTTTCTACGAGCTTGTGTTCCAGCTGACCCACTCCCTGGGTGGGGGGACTGGGT
-+SRR390728.2 2 length=72
-;;;;;;;;;;;;;;;;;4;;;;3;393.1+4&&5&&;;;;;;;;;;;;;;;;;;;;;<9;<;;;;;464262
+spots read      : 470,985
+reads read      : 1,883,940
+reads written   : 707,026
+reads 0-length  : 468,635
+technical reads : 708,279
+```
+
+For a list of additional flags use the following:
+```
+fasterq-dump -h
 ```
 
 # How to download multiple files at the same time
 ## The first thing we need is to create an accessing list, which is a file with all the sampleID you want to download. 
-Here's one example that you can use: 
+Here's an example: 
 
-let nano this into a file called "accession_list.txt" 
+Create a file called "accession_list.txt" 
+```
+nano accession_list.txt
+```
+
+The first column in this file will contain the sampleID that we will feed into the fasterq-dump to download, the second column is the runID, and the third column is the name of the study just to keep an record. You can  add more information or less information for your purposes but the sampleID is the required information. 
 ```
 SAMN07790141,SRR6178139,Camacho_Ortiz_2017
 SAMN03002640,SRR1556545,PRJNA259188
 ```
-The first column is the sampleID that we will feed into the fastq-dump to download, the second column is the runID that, and the third column is the name of the study just to keep an record. You can definetly add more information or less information for your purposes/own person habit but the sampleID is the required information. 
 
-## Next we will feed the accession list to the fastq-dump to download multiple files at the same time
+## Next we will feed the accession list to the fasterq-dump to download multiple files at the same time
 lets use nano to write this into a shell script called "fastq.sh"
+```
+nano fastq.sh
+```
+
 ```
 while read line; do
 
@@ -82,7 +98,7 @@ if [ ! -f "reads/${SampleID}/${RunID}_1.fastq.gz" ]; then
 	mkdir -p reads/$SampleID # create a folder for each Biosample
 	cd reads/$SampleID
 	echo \-\-\-\> Downloading $SampleID
-	fastq-dump --split-files --gzip $RunID # use fastq-dump to download its reads
+	fasterq-dump --split-files --gzip $RunID # use fasterq-dump to download its reads
 	cd ../../
 else
 	echo \-\-\-\> $SampleID already downloaded
